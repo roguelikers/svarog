@@ -1,0 +1,9 @@
+   name    | file                              | weight | width | height 
+#----------+-----------------------------------+--------+-------+---------
+   scp     | source_code_pro_bold_10.png       |  1     | 10    | 10
+   scp     | source_code_pro_regular_10.png    |  0     |       |
+   scp     | source_code_pro_light_10.png      | -1     |       |
+   scp     | source_code_pro_extralight_10.png | -2     |       |
+#----------+-----------------------------------+--------+-------+---------
+   kenney  | kenney-1bit.png                   |  0     | 16    | 16
+#----------+-----------------------------------+--------+-------+---------

@@ -1,0 +1,10 @@
+Config(
+
+// Windowing
+	title: "SVAROG",
+	mode: Windowed(1024, 768),
+
+// Tileset
+	tileset: "scp",
+
+)
