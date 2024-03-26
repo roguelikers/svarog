@@ -22,7 +22,7 @@ pub enum SvarogWindowMode {
 }
 
 #[derive(Resource)]
-pub struct SvarogWindowSize(u32, u32);
+pub struct SvarogWindowSize(pub u32, pub u32);
 
 pub struct SvarogWindowPlugin;
 

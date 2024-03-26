@@ -1,9 +1,9 @@
-   name    | dictionary                | file                              | weight | width | height 
-#----------+---------------------------+-----------------------------------+--------+-------+---------
-  scp      | sourcecodepro/scp.dict    | sourcecodepro/bold.png            |  1     |  16   | 16
-  scp      |                           | sourcecodepro/regular.png         |  0     |       |
-  scp      |                           | sourcecodepro/light.png           | -1     |       |
-#----------+---------------------------+-----------------------------------+--------+-------+---------
-  kenney-c | kenney/kenney.dict        | kenney/colored_packed.png         |  0     |  16   | 16
-  kenney-m | kenney/kenney.dict        | kenney/monochrome_packed.png      |  0     |  16   | 16
-#----------+---------------------------+-----------------------------------+--------+-------+---------
+   name    | dictionary                 | file                              | weight | width | height 
+#----------+----------------------------+-----------------------------------+--------+-------+---------
+  scp      | sourcecodepro/scp.dict.csv | sourcecodepro/bold.png            |  1     |  16   | 16
+  scp      |                            | sourcecodepro/regular.png         |  0     |       |
+  scp      |                            | sourcecodepro/light.png           | -1     |       |
+#----------+----------------------------+-----------------------------------+--------+-------+---------
+  kenney-c | kenney/kenney.dict.csv     | kenney/colored_packed.png         |  0     |  16   | 16
+  kenney-m | kenney/kenney.dict.csv     | kenney/monochrome_packed.png      |  0     |  16   | 16
+#----------+------------------------- --+-----------------------------------+--------+-------+---------
