@@ -7,7 +7,6 @@ use bevy::window::WindowMode;
 use bevy::window::WindowResolution;
 
 use crate::tiles::DefaultTileset;
-use crate::tiles::Tilesets;
 
 #[derive(serde::Deserialize)]
 struct Config {
