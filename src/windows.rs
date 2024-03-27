@@ -6,13 +6,10 @@ use bevy::window::PrimaryWindow;
 use bevy::window::WindowMode;
 use bevy::window::WindowResolution;
 
-use crate::tiles::DefaultTileset;
-
 #[derive(serde::Deserialize)]
 struct Config {
     pub title: String,
     pub mode: SvarogWindowMode,
-    pub tileset: String,
 }
 
 #[derive(PartialEq, Eq, serde::Deserialize)]
@@ -29,11 +26,11 @@ pub struct SvarogWindowPlugin;
 impl Plugin for SvarogWindowPlugin {
     fn build(&self, bevy: &mut bevy::prelude::App) {
         let config_file = File::open("config.ron").expect("Failed to open config file");
-        let Ok(config): Result<Config, _> = ron::de::from_reader(config_file) else { 
+        let Ok(config): Result<Config, _> = ron::de::from_reader(config_file) else {
             println!("No config found. Quitting.");
             return;
         };
-        
+
         let mut defaults = DefaultPlugins.build();
         defaults = defaults.set(ImagePlugin::default_nearest());
 
@@ -59,9 +56,7 @@ impl Plugin for SvarogWindowPlugin {
         }
 
         bevy.add_plugins(defaults);
-        println!("Default tileset: {:?}", config.tileset.clone());
-        bevy.insert_resource(DefaultTileset(config.tileset.clone()));
-        
+
         bevy.add_systems(
             Startup,
             |mut commands: Commands, window: Query<&Window, With<PrimaryWindow>>| {

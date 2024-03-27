@@ -219,9 +219,6 @@ impl SvarogTilePlugin {
 #[derive(Resource, Default, Clone, Debug)]
 pub struct Tilesets(pub HashMap<String, Tileset>);
 
-#[derive(Resource)]
-pub struct DefaultTileset(pub String);
-
 fn initialize_tilesets(
     mut commands: Commands,
     mut tilesets: ResMut<Tilesets>,
@@ -310,18 +307,10 @@ fn initialize_tilesets(
     commands.remove_resource::<TilesConfig>();
 }
 
-fn check_tilesets(default_tileset: Res<DefaultTileset>, tilesets: Res<Tilesets>) {
-    if !tilesets.0.contains_key(&default_tileset.0) {
-        println!("Cannot find the default tileset, quitting.");
-        panic!();
-    }
-}
-
 impl Plugin for SvarogTilePlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
         app.insert_resource(TilesConfig(self.config.clone()));
         app.init_resource::<Tilesets>();
         app.add_systems(Startup, initialize_tilesets);
-        app.add_systems(Startup, check_tilesets.after(initialize_tilesets));
     }
 }
