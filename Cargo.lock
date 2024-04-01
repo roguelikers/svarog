@@ -486,6 +486,7 @@ checksum = "966fc90b0126ee62bb7b93e4273da38a4fce7d1c48a1f6e94a8f558798be2543"
 dependencies = [
  "anyhow",
  "bevy",
+ "csv",
  "ron 0.8.1",
  "serde",
  "thiserror",
