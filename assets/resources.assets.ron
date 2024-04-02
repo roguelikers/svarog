@@ -1,6 +1,17 @@
 ({
-    "kenney": TextureAtlas(
-        path: "kenney/monochrome_packed.png",
+    "kenney_colour": TextureAtlas(
+        path: "kenney-colour/colored_packed.png",
+        tile_size_x: 16.,
+        tile_size_y: 16.,
+        columns: 49,
+        rows: 22,
+        padding_x: 0.,
+        padding_y: 0.,
+        offset_x: 0.,
+        offset_y: 0.,
+    ),
+    "kenney_mono": TextureAtlas(
+        path: "kenney-mono/monochrome_packed.png",
         tile_size_x: 16.,
         tile_size_y: 16.,
         columns: 49,
@@ -12,9 +23,9 @@
     ),
     "source_code": TextureAtlas(
         path: "sourcecodepro/regular.png",
-        tile_size_x: 16.,
-        tile_size_y: 16.,
-        columns: 28,
+        tile_size_x: 11.,
+        tile_size_y: 21.,
+        columns: 26,
         rows: 4,
         padding_x: 0.,
         padding_y: 0.,

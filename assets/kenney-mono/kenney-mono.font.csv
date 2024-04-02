@@ -1,0 +1,82 @@
+  name         |   x   |   y   | attributes
+#--------------+-------+-------+------------------
+  empty        |   1   |   1   | empty
+  dirt         |   2   |   1   | dirt
+  dirt         |   3   |   1   | dirt
+  dirt         |   4   |   1   | dirt
+  grass        |   5   |   1   | grass
+  grass        |   6   |   1   | grass
+  grass        |   7   |   1   | grass
+  grass        |   13  |   7   | grass, garden
+  grass        |   14  |   7   | grass, garden
+  grass        |   15  |   7   | grass, garden
+  grass        |   16  |   7   | grass, garden
+  grass        |   21  |   3   | grass, dry
+  stones       |   6   |   3   | dirt
+  tiles        |   17  |   1   | tiles
+  tiles        |   18  |   1   | tiles
+#--------------+-------+-------+------------------
+  tree         |   1   |   2   | forest
+  tree         |   2   |   2   | forest
+  tree         |   3   |   2   | forest
+  tree         |   4   |   2   | forest
+  tree         |   5   |   2   | forest
+  tree         |   6   |   2   | forest, fruit
+  tree         |   4   |   3   | forest
+  tree         |   5   |   3   | forest, fruit
+  tree         |   8   |   3   | forest, palm
+  cactus       |   7   |   2   | forest, cactus
+  cactus       |   8   |   2   | forest, cactus
+#--------------+-------+-------+------------------
+  grass        |   1   |   3   | grass
+  vines        |   2   |   3   | vines
+  vines        |   3   |   3   | vines
+  vines        |   7   |   3   | vines, dry
+#--------------+-------+-------+------------------
+  wall         |   1   |   14  | wall
+  wall         |   2   |   12  | wall, broken
+  wall         |   3   |   12  | wall, broken
+  wall         |   3   |   13  | wall, window
+  wall         |   2   |   14  | wall, window
+  wall         |   3   |   14  | wall, window
+  wall         |   11  |   18  | wall
+  wall         |   12  |   18  | wall, window
+  wall         |   13  |   18  | wall, window
+  wall         |   14  |   18  | wall, broken, window
+  wall         |   11  |   19  | wall
+  wall         |   12  |   19  | wall
+  wall         |   17  |   13  | wall, broken
+#--------------+-------+-------+------------------
+  stairs       |   3   |   7   | stairs, up
+  stairs       |   4   |   7   | stairs, down
+  shelf        |   5   |   7   | shelf, interior, empty
+  shelf        |   6   |   7   | shelf, interior, full
+  shelf        |   5   |   8   | shelf, interior, full
+  cupboard     |   6   |   8   | cupboard, interior, closed
+  cupboard     |   7   |   8   | cupboard, interior, open
+  mirror       |   1   |   9   | mirror, interior
+  table        |   2   |   9   | table, interior, small
+  table        |   3   |   9   | table, interior, large
+  bed          |   5   |   9   | bed, interior
+  fireplace    |   9   |   9   | fireplace, interior, light
+  fireplace    |   9   |   9   | fireplace, interior, light
+  door         |   4   |   10  | door, closed, thick
+  door         |   5   |   10  | door, closed, thick
+  door         |   6   |   10  | door, closed, thick
+  door         |   7   |   10  | door, open, thick
+  door         |   8   |   10  | door, closed, thin
+  door         |   9   |   10  | door, closed, thin
+  door         |   10  |   10  | door, open, thin
+  grates       |   7   |   11  | grates
+  grates       |   12  |   11  | grates
+  cauldron     |   6   |   14  | cauldron, interior
+  bones        |   1   |   15  | bones
+  bones        |   2   |   15  | bones
+  spiderweb    |   3   |   15  | spiderweb
+  candelabra   |   4   |   15  | candelabra, interior, light
+  candelabra   |   5   |   15  | candelabra, interior, light
+  candelabra   |   6   |   15  | candelabra, interior, light
+  bonfire      |   15  |   11  | bonfire, light
+#--------------+-------+-------+-----------------
+
+

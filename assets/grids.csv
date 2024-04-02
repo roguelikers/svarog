@@ -1,8 +1,14 @@
-   name     | grid size x | grid size y | kind       | tileset
-#-----------+-------------+-------------+------------+----------
-   tiles    |         100 |         100 | glyph      | kenney
-   entities |         100 |         100 | entity     |
-   solid    |         100 |         100 | boolean    |
-#-----------+-------------+-------------+------------+----------
-   ui       |         100 |         100 | glyph      | scp
-#-----------+-------------+-------------+------------+----------
+   name     |    width    |    height   |   depth   |  x  |  y  | kind       | tileset        | align
+#-----------+-------------+-------------+-----------+-----+-----+------------+----------------+---------------------
+#  tiles    |         200 |         200 |         0 | 100 | 100 | glyph      | kenney-colour  | None
+#-----------+-------------+-------------+-----------+-----+-----+------------+----------------+---------------------
+   uiTL     |          10 |          10 |         1 |   0 |   0 | glyph      | sourcecodepro  | TopLeft
+   uiTR     |          10 |          10 |         1 |   0 |   0 | glyph      | sourcecodepro  | TopRight
+   uiBL     |          10 |          10 |         1 |   0 |   0 | glyph      | sourcecodepro  | BottomLeft
+   uiBR     |          10 |          10 |         1 |   0 |   0 | glyph      | sourcecodepro  | BottomRight   
+   uiT      |          10 |          10 |         1 |   0 |   0 | glyph      | sourcecodepro  | Top
+   uiB      |          10 |          10 |         1 |   0 |   0 | glyph      | sourcecodepro  | Bottom
+   uiL      |          10 |          10 |         1 |   0 |   0 | glyph      | sourcecodepro  | Left
+   uiR      |          10 |          10 |         1 |   0 |   0 | glyph      | sourcecodepro  | Right      
+   uiC      |          10 |          10 |         1 |   0 |   0 | glyph      | sourcecodepro  | Center         
+#-----------+-------------+-------------+-----------+-----+-----+------------+----------------+---------------------
