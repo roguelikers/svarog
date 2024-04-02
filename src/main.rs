@@ -1,9 +1,8 @@
-use bevy::{app::{App, Update}, asset::Handle, core_pipeline::core_2d::{Camera2d, Camera2dBundle}, ecs::{query::With, schedule::{common_conditions::in_state, IntoSystemConfigs, OnEnter, States}, system::{Commands, Query, Res, ResMut, Resource}}, hierarchy::BuildChildren, input::{keyboard::KeyCode, Input}, math::{Quat, Vec3}, render::view::{InheritedVisibility, Visibility}, sprite::{SpriteSheetBundle, TextureAtlas, TextureAtlasSprite}, transform::components::{GlobalTransform, Transform}};
+use bevy::{app::{App, Update}, asset::Handle, ecs::{query::With, schedule::{common_conditions::in_state, IntoSystemConfigs, States}, 
+    system::{Query, Res, Resource}}, input::{keyboard::KeyCode, Input}, math::Vec3, sprite::TextureAtlas, transform::components::Transform};
 use bevy_asset_loader::asset_collection::AssetCollection;
 use loading::{CameraTag, Fonts, Grids, SvarogLoadingPlugin, Tilesets};
 use windows::SvarogWindowPlugin;
-
-use crate::loading::GridKind;
 
 pub mod windows;
 pub mod loading;

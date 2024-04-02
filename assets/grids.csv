@@ -1,6 +1,6 @@
    name     |    width    |    height   |   depth   |  x  |  y  | kind       | tileset        | align
 #-----------+-------------+-------------+-----------+-----+-----+------------+----------------+---------------------
-#  tiles    |         200 |         200 |         0 | 100 | 100 | glyph      | kenney-colour  | None
+   tiles    |         200 |         200 |         0 | 100 | 100 | glyph      | kenney-colour  | None
 #-----------+-------------+-------------+-----------+-----+-----+------------+----------------+---------------------
    uiTL     |          10 |          10 |         1 |   1 |   1 | glyph      | sourcecodepro  | TopLeft
    uiTR     |          10 |          10 |         1 |   1 |   1 | glyph      | sourcecodepro  | TopRight

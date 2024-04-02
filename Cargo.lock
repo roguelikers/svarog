@@ -3353,6 +3353,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "19b30a45b0cd0bcca8037f3d0dc3421eaf95327a17cad11964fb8179b4fc4832"
 
 [[package]]
+name = "rexpaint"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "77d1d6fdb04b364c0780f021dbc5361e1a3584aab9cfd542e08639092f569a48"
+dependencies = [
+ "byteorder",
+ "flate2",
+]
+
+[[package]]
 name = "ringbuf"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3605,6 +3615,7 @@ dependencies = [
  "pathfinding",
  "priority-queue",
  "rand_core",
+ "rexpaint",
  "ron 0.7.1",
  "serde",
  "winit",

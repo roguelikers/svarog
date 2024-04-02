@@ -1,8 +1,10 @@
-use bevy::{app::Plugin, core_pipeline::core_2d::Camera2dBundle, ecs::{component::Component, entity::Entity, query::With, schedule::{IntoSystemConfigs, NextState, OnEnter}, system::{Commands, Query, Res, ResMut, Resource}}, hierarchy::BuildChildren, math::{IVec2, Vec3}, render::view::{InheritedVisibility, Visibility}, sprite::{SpriteSheetBundle, TextureAtlasSprite}, transform::components::{GlobalTransform, Transform}, utils::hashbrown::HashMap, window::{PrimaryWindow, Window}};
-use bevy_asset_loader::{
-    loading_state::{config::ConfigureLoadingState, LoadingState, LoadingStateAppExt},
-    standard_dynamic_asset::StandardDynamicAssetCollection,
-};
+use bevy::{app::Plugin, core_pipeline::core_2d::Camera2dBundle, 
+    ecs::{component::Component, entity::Entity, query::With, schedule::{NextState, OnEnter}, 
+    system::{Commands, Query, Res, ResMut, Resource}}, hierarchy::BuildChildren, math::Vec3, 
+    render::view::{InheritedVisibility, Visibility}, sprite::{SpriteSheetBundle, TextureAtlasSprite}, 
+    transform::components::{GlobalTransform, Transform}, utils::hashbrown::HashMap, window::{PrimaryWindow, Window}};
+use bevy_asset_loader::{loading_state::{config::ConfigureLoadingState, LoadingState, LoadingStateAppExt},
+    standard_dynamic_asset::StandardDynamicAssetCollection};
 use csv::Trim;
 use itertools::Itertools;
 use std::{collections::HashSet, fmt::Debug};
@@ -352,6 +354,7 @@ impl Plugin for SvarogLoadingPlugin {
         let mut tilesets = Tilesets::default();
         let mut fonts = Fonts::default();
         let mut grids = Grids::default();
+
         (self.loader.as_ref().expect("Expected loader function"))(&mut tilesets, &mut fonts, &mut grids);
         app.insert_resource(tilesets);
         app.insert_resource(fonts);
