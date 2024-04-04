@@ -47,14 +47,10 @@ pub enum Commitment {
 }
 
 #[derive(Debug)]
-pub enum Influence {}
-
-#[derive(Debug)]
 pub struct HitDie {
     pub value: Value,
     pub effort: Effort,
     pub statuses: HashSet<HitDieStatus>,
-    pub influences: Vec<Influence>,
 }
 
 impl HitDie {
@@ -63,7 +59,6 @@ impl HitDie {
             value: Value::new(size),
             effort: Effort::Uncommited, 
             statuses: HashSet::new(),
-            influences: Vec::new(),
         }
     }
 }
@@ -364,7 +359,7 @@ impl React<HealthAction, Vec<HealthActionResponse>> for Health {
                 }
             },
             HealthAction::Shatter => {
-                if let Some(_) = self.hit_dice.pop() {
+                if self.hit_dice.pop().is_some() {
                     vec![ HealthActionResponse::ShatterResponse(self.hit_dice.len()) ]
                 } else {
                     vec![ HealthActionResponse::None ]

@@ -1,13 +1,14 @@
 use std::marker::PhantomData;
 
-use bevy::app::App;
+use bevy::{app::{App, Update}, ecs::schedule::{common_conditions::in_state, IntoSystemConfigs}};
 
-use self::{loading::{Fonts, Grids, SvarogLoadingPlugin, SvarogStates, SvarogTextureAssets, Tilesets}, windows::SvarogWindowPlugin};
+use self::{loading::{Fonts, Grids, SvarogLoadingPlugin, SvarogStates, SvarogTextureAssets, Tilesets}, update::{grid_update_values, SvarogGridPlugin}, windows::SvarogWindowPlugin};
 
 pub mod windows;
 pub mod loading;
 pub mod tables;
 pub mod rex;
+pub mod update;
 
 pub struct Svarog<A: SvarogTextureAssets, S: SvarogStates>(pub(crate) App, PhantomData<(A, S)>);
 
@@ -16,6 +17,7 @@ impl<A: SvarogTextureAssets, S: SvarogStates> Default for Svarog<A, S> {
         Self({
             let mut app = App::default();
             app.add_plugins(SvarogWindowPlugin);
+            app.add_plugins(SvarogGridPlugin::<S>::default());
             app
         }, PhantomData)
     }

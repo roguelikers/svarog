@@ -1,7 +1,7 @@
-      name      | font                                 | texture                           | weight | width | height 
-#---------------+--------------------------------------+-----------------------------------+--------+-------+---------
-  sourcecodepro | sourcecodepro/sourcecodepro.font.csv | sourcecodepro/regular.png         |  0     |  11   | 21
-#---------------+--------------------------------------+-----------------------------------+--------+-------+---------
-  kenney-colour | kenney-colour/kenney-colour.font.csv | kenney-colour/colored_packed.png  |  0     |  16   | 16
-  kenney-mono   | kenney-mono/kenney-mono.font.csv     | kenney-mono/monochrome_packed.png |  0     |  16   | 16
-#---------------+--------------------------------------+-----------------------------------+--------+-------+---------
+      name      | font                                 | texture                           | weight | width | height | columns | rows |
+#---------------+--------------------------------------+-----------------------------------+--------+-------+--------+---------+------+
+  sourcecodepro | sourcecodepro/sourcecodepro.font.csv | sourcecodepro/regular.png         |  0     |  11   | 21     |    26   |  4   |
+#---------------+--------------------------------------+-----------------------------------+--------+-------+--------+---------+------+
+  kenney-colour | kenney-colour/kenney-colour.font.csv | kenney-colour/colored_packed.png  |  0     |  16   | 16     |    49   |  22  |
+  kenney-mono   | kenney-mono/kenney-mono.font.csv     | kenney-mono/monochrome_packed.png |  0     |  16   | 16     |    49   |  22  |
+#---------------+--------------------------------------+-----------------------------------+--------+-------+--------+---------+------+
