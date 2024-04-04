@@ -20,16 +20,16 @@ pub enum HitDieStatus {
     Grafted,
     /// A `Temporary` Hit Die shatters if empty
     Temporary,
-    /// A `Guarded` Hit Die can't be Disenchanted, Broken, or Drained
+    /// A `Guarded` Hit Die can't be Broken, or Drained
     Guarded,
     /// When a `Fortified` Hit Die would become Empty, if its value is greater than zero, heal completely 
     /// and reduce the value by 1, and remove if at 0
     Fortified(Amount),  
     /// A `Stifled` Hit Die gives no effort for the next number of turns
     Stifled(Time),
-    /// A `Cracked` Hit Die loses 1 HP every set number of turns
+    /// A `Cracked` Hit Die chips for 1 damage every set number of turns
     Cracked(Time),
-    /// A `Mending` Hit Die heals 1 HP every set number of turns
+    /// A `Mending` Hit Die heals 1 damage every set number of turns
     Mending(Time),
 }
 
@@ -72,6 +72,10 @@ impl HitDie {
 pub enum HealthAction {
     /// The `Create` action adds a Hit Die of some size to the health bar
     Create(Amount),
+    /// The `AddStatus` action adds a status to the right-most Hit Die
+    AddStatus(HitDieStatus),
+    /// The `RemoveStatus` action removes a status to the right-most Hit Die
+    RemoveStatus(HitDieStatus),
     /// The `Chip` action reduces the right-most Hit Die for a set amount of hitpoints,
     /// spilling over to the left if there's any remaining damage
     Chip(Amount),
@@ -96,6 +100,8 @@ pub enum HitDieActionResponse {
     ChipResponse(Amount),
     HealResponse(Amount),
     DrainResponse,
+    BreakResponse,
+    MendResponse,
     ShatterResponse,
     FortifiedResponse(Amount),
     RecoveryResponse,
@@ -120,6 +126,8 @@ impl From<(&HitDieActionResponse, Index)> for HealthActionResponse {
         match value.0 {
             HitDieActionResponse::None => HealthActionResponse::None,
             HitDieActionResponse::DrainResponse => HealthActionResponse::DrainResponse(value.1),
+            HitDieActionResponse::BreakResponse => HealthActionResponse::BreakResponse(value.1),
+            HitDieActionResponse::MendResponse => HealthActionResponse::MendResponse(value.1),
             HitDieActionResponse::ChipResponse(r) => HealthActionResponse::ChipResponse(value.1, *r),
             HitDieActionResponse::HealResponse(r) => HealthActionResponse::HealResponse(value.1, *r),
             HitDieActionResponse::FortifiedResponse(f) => HealthActionResponse::FortifiedResponse(value.1, *f),
@@ -135,21 +143,35 @@ impl React<HealthAction, HitDieActionResponse> for HitDie {
             HealthAction::Chip(n) if n > 0 => {
                 HitDieActionResponse::ChipResponse(self.value.reduce(n as u32))
             },
+            HealthAction::AddStatus(status) => {
+                self.statuses.insert(status);
+                HitDieActionResponse::None
+            },
+            HealthAction::RemoveStatus(status) => {
+                self.statuses.remove(&status);
+                HitDieActionResponse::None
+            },
             HealthAction::Heal(n) if n > 0 => {
                 self.statuses.remove(&HitDieStatus::Empty);
                 HitDieActionResponse::HealResponse(self.value.add(n as u32))
-            }
+            },
+            HealthAction::Drain if self.statuses.contains(&HitDieStatus::Guarded) => {
+                HitDieActionResponse::RecoveryResponse
+            },
             HealthAction::Drain => {
                 self.value.empty();
                 HitDieActionResponse::DrainResponse
             },
+            HealthAction::Break if self.statuses.contains(&HitDieStatus::Guarded) => {
+                HitDieActionResponse::RecoveryResponse
+            },
             HealthAction::Break => {
                 self.statuses.insert(HitDieStatus::Void);
-                HitDieActionResponse::None
+                HitDieActionResponse::BreakResponse
             },
             HealthAction::Mend => {
                 self.statuses.remove(&HitDieStatus::Void);
-                HitDieActionResponse::None
+                HitDieActionResponse::MendResponse
             },
             HealthAction::Fortify(v) => {
                 let n = if let Some(&HitDieStatus::Fortified(n)) = 
@@ -169,8 +191,7 @@ impl React<HealthAction, HitDieActionResponse> for HitDie {
                 };
 
                 HitDieActionResponse::FortifiedResponse(value)
-            }
-
+            },
             _ => HitDieActionResponse::None,
         };
 
@@ -193,7 +214,9 @@ impl React<HealthAction, HitDieActionResponse> for HitDie {
                 }
                 return HitDieActionResponse::RecoveryResponse;
             }
-        } else if self.statuses.contains(&HitDieStatus::Temporary) {
+        }
+
+        if *self.value == 0 && self.statuses.contains(&HitDieStatus::Temporary) {
             return HitDieActionResponse::ShatterResponse;
         }
 
@@ -213,6 +236,14 @@ impl React<HealthAction, Vec<HealthActionResponse>> for Health {
             HealthAction::Create(size) if size > 0 => {
                 self.hit_dice.push(HitDie::new(size as u32));
                 vec![ HealthActionResponse::CreateResponse(self.hit_dice.len() - 1) ]
+            },
+            HealthAction::AddStatus(status) => {
+                self.hit_dice.last_mut().map(|hd| hd.execute(HealthAction::AddStatus(status)));
+                vec![ HealthActionResponse::None ]
+            },
+            HealthAction::RemoveStatus(status) => {
+                self.hit_dice.last_mut().map(|hd| hd.execute(HealthAction::RemoveStatus(status)));
+                vec![ HealthActionResponse::None ]
             },
             HealthAction::Chip(mut damage) if damage > 0 => {
                 let mut result = vec![];
@@ -298,8 +329,8 @@ impl React<HealthAction, Vec<HealthActionResponse>> for Health {
                 }
 
                 if should_apply {
-                    self.hit_dice[last].execute(HealthAction::Break);
-                    vec![ HealthActionResponse::BreakResponse(last) ]
+                    let response = self.hit_dice[last].execute(HealthAction::Break);
+                    vec![ (&response, last).into() ]
                 } else {
                     vec![ HealthActionResponse::None ]
                 }
@@ -409,6 +440,27 @@ mod health_testing {
         // [......] 6   -CHIP 10->    [xxxxxx] 0 / spill 4 damage   --no remaining dice, spill ends
 
         assert_eq!(result, vec![ HealthActionResponse::ChipResponse(0, 4) ]);
+    }
+
+    #[test]
+    fn test_temporary_hit_dice_shatter() {
+        
+        // [......] 6
+        //  |
+        //  Temporary
+
+        let mut health = Health::default();
+        let _ = health.execute(super::HealthAction::Create(6));
+        let _ = health.execute(super::HealthAction::AddStatus(HitDieStatus::Temporary));
+        assert!(health.hit_dice.last().unwrap().statuses.contains(&HitDieStatus::Temporary));
+        
+        // [......] 6   -CHIP 6->   [xxxxxx]    -TEMP->    gone!
+        //  |                        |
+        //  Temporary                Temporary, Empty
+
+        let result = health.execute(super::HealthAction::Chip(6));
+        assert_eq!(result, vec![ HealthActionResponse::ShatterResponse(0) ]);
+        assert_eq!(0, health.hit_dice.len());
     }
 
     #[test]
@@ -555,6 +607,85 @@ mod health_testing {
     }
 
     #[test]
+    fn test_fortified_over_multiple_attacks() {
+        
+        // [......] 6
+        //  |
+        //  Fortified(3)
+
+        let mut health = Health::default();
+        let _ = health.execute(super::HealthAction::Create(6));
+        let _ = health.execute(super::HealthAction::AddStatus(HitDieStatus::Fortified(3)));
+        assert!(health.hit_dice.last().unwrap().statuses.contains(&HitDieStatus::Fortified(3)));
+
+        // [......] 6   -CHIP 6->   [xxxxxx]    -FORT 3->    [......] 6
+        //  |                        |                        |
+        //  Fortified(3)             Fortified(3), Empty      Fortified(2) / change: 3 -> 2
+
+        let result = health.execute(super::HealthAction::Chip(6));
+        assert_eq!(result, vec![ HealthActionResponse::RecoveryResponse(0) ]);
+        assert!(health.hit_dice.last().unwrap().statuses.contains(&HitDieStatus::Fortified(2)));
+
+        // [......] 6   -CHIP 6->   [xxxxxx]    -FORT 2->    [......] 6
+        //  |                        |                        |
+        //  Fortified(2)             Fortified(2), Empty      Fortified(1) / change: 2 -> 1
+
+        let result = health.execute(super::HealthAction::Chip(6));
+        assert_eq!(result, vec![ HealthActionResponse::RecoveryResponse(0) ]);
+        assert!(health.hit_dice.last().unwrap().statuses.contains(&HitDieStatus::Fortified(1)));
+
+
+        // [......] 6   -CHIP 6->   [xxxxxx]    -FORT 1->    [......] 6
+        //  |                        |
+        //  Fortified(1)             Fortified(1), Empty
+
+        let result = health.execute(super::HealthAction::Chip(6));
+        assert_eq!(result, vec![ HealthActionResponse::RecoveryResponse(0) ]);
+        assert!(health.hit_dice.last().unwrap().statuses.is_empty());
+
+        // [......] 6   -CHIP 6->   [xxxxxx]
+        //                           |
+        //                           Empty
+
+        let result = health.execute(super::HealthAction::Chip(6));
+        assert_eq!(result, vec![ HealthActionResponse::ChipResponse(0, 0) ]);
+        assert!(health.hit_dice.last().unwrap().statuses.contains(&HitDieStatus::Empty));
+    }
+
+    #[test]
+    fn test_fortified_activates_before_temporary() {
+        
+        // [......] 6
+        //  |
+        //  Temporary, Fortified(1)
+
+        let mut health = Health::default();
+        let _ = health.execute(super::HealthAction::Create(6));
+        let _ = health.execute(super::HealthAction::AddStatus(HitDieStatus::Temporary));
+        let _ = health.execute(super::HealthAction::AddStatus(HitDieStatus::Fortified(1)));
+        assert!(health.hit_dice.last().unwrap().statuses.contains(&HitDieStatus::Temporary));
+        assert!(health.hit_dice.last().unwrap().statuses.contains(&HitDieStatus::Fortified(1)));
+        
+        // [......] 6   -CHIP 6->   [xxxxxx]    -FORT 1->    [......]
+        //  |                        |                        |
+        //  Temporary, Fortified(1)  Temporary, Fortified(1)  Temporary
+
+        let result = health.execute(super::HealthAction::Chip(6));
+        assert_eq!(result, vec![ HealthActionResponse::RecoveryResponse(0) ]);
+        assert_eq!(1, health.hit_dice.len());
+        assert_eq!(6, *health.hit_dice.last().unwrap().value);
+        assert!(!health.hit_dice.last().unwrap().statuses.contains(&HitDieStatus::Fortified(1)));
+
+        // [......] 6   -CHIP 6->   [xxxxxx]    -TEMP->    gone!
+        //  |                        |
+        //  Temporary                Temporary, Empty
+
+        let result = health.execute(super::HealthAction::Chip(6));
+        assert_eq!(result, vec![ HealthActionResponse::ShatterResponse(0) ]);
+        assert_eq!(0, health.hit_dice.len());
+    }
+
+    #[test]
     pub fn test_drain_hit_dice() {
                 
         //   [......] 6
@@ -570,6 +701,25 @@ mod health_testing {
         assert_eq!(result, vec![ HealthActionResponse::DrainResponse(0) ]);
         assert_eq!(*health.hit_dice.last().unwrap().value, 0);
         assert!(health.hit_dice.last().unwrap().statuses.contains(&HitDieStatus::Empty));
+    }
+
+    #[test]
+    pub fn test_guard_cancels_drain_hit_dice() {
+
+        // [......] 6
+        //  |
+        //  Guarded
+
+        let mut health = Health::default();
+        let _ = health.execute(super::HealthAction::Create(6));
+        let _ = health.execute(super::HealthAction::AddStatus(HitDieStatus::Guarded));
+
+        // [......] 6   -DRAIN->   [......] 6 / no change!
+        //  |                       |
+        //  Guarded                 Guarded
+
+        let result = health.execute(super::HealthAction::Drain);
+        assert_eq!(result, vec![ HealthActionResponse::RecoveryResponse(0) ]);
     }
 
     #[test]
@@ -614,6 +764,25 @@ mod health_testing {
 
         let result = health.execute(super::HealthAction::Break);
         assert_eq!(result, vec![ HealthActionResponse::BreakResponse(0) ]);
+    }
+
+    #[test]
+    pub fn test_guard_cancels_break_hit_dice() {
+
+        // [......] 6
+        //  |
+        //  Guarded
+
+        let mut health = Health::default();
+        let _ = health.execute(super::HealthAction::Create(6));
+        let _ = health.execute(super::HealthAction::AddStatus(HitDieStatus::Guarded));
+
+        // [......] 6   -BREAK->   [......] 6
+        //  |                       |
+        //  Guarded                 Guarded / no change - not Void!
+
+        let result = health.execute(super::HealthAction::Break);
+        assert_eq!(result, vec![ HealthActionResponse::RecoveryResponse(0) ]);
     }
 
     #[test]
