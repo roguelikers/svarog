@@ -1,5 +1,5 @@
 ({
-    "kenney_colour": TextureAtlas(
+    "kenney-colour": TextureAtlas(
         path: "kenney-colour/colored_packed.png",
         tile_size_x: 16.,
         tile_size_y: 16.,
@@ -10,7 +10,7 @@
         offset_x: 0.,
         offset_y: 0.,
     ),
-    "kenney_mono": TextureAtlas(
+    "kenney-mono": TextureAtlas(
         path: "kenney-mono/monochrome_packed.png",
         tile_size_x: 16.,
         tile_size_y: 16.,
@@ -21,7 +21,7 @@
         offset_x: 0.,
         offset_y: 0.,
     ),
-    "source_code": TextureAtlas(
+    "sourcecodepro": TextureAtlas(
         path: "sourcecodepro/regular.png",
         tile_size_x: 11.,
         tile_size_y: 21.,

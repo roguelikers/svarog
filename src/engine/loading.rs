@@ -1,15 +1,22 @@
-use bevy::{app::Plugin, core_pipeline::core_2d::Camera2dBundle, 
-    ecs::{component::Component, entity::Entity, query::With, schedule::{NextState, OnEnter}, 
-    system::{Commands, Query, Res, ResMut, Resource}}, hierarchy::BuildChildren, math::Vec3, 
-    render::view::{InheritedVisibility, Visibility}, sprite::{SpriteSheetBundle, TextureAtlasSprite}, 
-    transform::components::{GlobalTransform, Transform}, utils::hashbrown::HashMap, window::{PrimaryWindow, Window}};
-use bevy_asset_loader::{loading_state::{config::ConfigureLoadingState, LoadingState, LoadingStateAppExt},
-    standard_dynamic_asset::StandardDynamicAssetCollection};
+use bevy::{app::Plugin, asset::Handle, core_pipeline::core_2d::Camera2dBundle, ecs::{component::Component, entity::Entity, query::With, schedule::{NextState, OnEnter, States}, 
+    system::{Commands, Query, Res, ResMut, Resource}}, hierarchy::BuildChildren, math::Vec3, render::view::{InheritedVisibility, Visibility}, sprite::{SpriteSheetBundle, TextureAtlas, TextureAtlasSprite}, transform::components::{GlobalTransform, Transform}, utils::hashbrown::HashMap, window::{PrimaryWindow, Window}};
+use bevy_asset_loader::{asset_collection::AssetCollection, loading_state::{config::ConfigureLoadingState, LoadingState, LoadingStateAppExt}, standard_dynamic_asset::StandardDynamicAssetCollection};
 use csv::Trim;
 use itertools::Itertools;
-use std::{collections::HashSet, fmt::Debug};
+use std::{collections::HashSet, fmt::Debug, marker::PhantomData};
 
-use super::{GameAssets, GameStates};
+//use super::{GameAssets, GameStates};
+
+pub trait SvarogStates : States {
+    fn static_loading_state() -> Self;
+    fn asset_loading_state() -> Self;
+    fn setup_state() -> Self;
+    fn done_loading_state() -> Self;
+}
+
+pub trait SvarogTextureAssets : AssetCollection + Default {
+    fn get(&self, name: &str) -> Option<Handle<TextureAtlas>>;
+}
 
 #[derive(Default, Debug)]
 pub struct Font {
@@ -251,16 +258,17 @@ impl Tilesets {
     }
 }
 
-pub fn start_static_loading(mut next: ResMut<NextState<GameStates>>) {
-    next.set(GameStates::AssetLoading);
+pub fn start_static_loading<GameStates: SvarogStates>(mut next: ResMut<NextState<GameStates>>) {
+    next.set(GameStates::asset_loading_state());
 }
 
 #[derive(Default)]
-pub struct SvarogLoadingPlugin {
+pub struct SvarogLoadingPlugin<A: AssetCollection, S: SvarogStates> {
     loader: Option<Box<dyn Fn(&mut Tilesets, &mut Fonts, &mut Grids) + 'static + Sync + Send>>,
+    phantom: PhantomData<(A, S)>
 }
 
-impl SvarogLoadingPlugin {
+impl<A: AssetCollection, S: SvarogStates> SvarogLoadingPlugin<A, S> {
     pub fn with_loader<F: Fn(&mut Tilesets, &mut Fonts, &mut Grids) + 'static + Sync + Send>(mut self, f: F) -> Self {
         self.loader = Some(Box::new(f));
         self
@@ -284,7 +292,7 @@ pub fn create_camera(mut commands: Commands) {
         CameraTag));
 }
 
-pub fn create_grid_entities(
+pub fn create_grid_entities<GameAssets: SvarogTextureAssets, GameStates: SvarogStates>(
     mut commands: Commands, 
     mut grids: ResMut<Grids>,
     assets: Res<GameAssets>, 
@@ -346,10 +354,10 @@ pub fn create_grid_entities(
         }
     }
 
-    next.set(GameStates::Game);
+    next.set(GameStates::done_loading_state());
 }
 
-impl Plugin for SvarogLoadingPlugin {
+impl<A: SvarogTextureAssets, S: SvarogStates> Plugin for SvarogLoadingPlugin<A, S> {
     fn build(&self, app: &mut bevy::prelude::App) {
         let mut tilesets = Tilesets::default();
         let mut fonts = Fonts::default();
@@ -360,16 +368,16 @@ impl Plugin for SvarogLoadingPlugin {
         app.insert_resource(fonts);
         app.insert_resource(grids);
 
-        app.add_systems(OnEnter(GameStates::StaticLoading), start_static_loading);
-        app.add_systems(OnEnter(GameStates::StaticLoading), create_camera);
+        app.add_systems(OnEnter(S::static_loading_state()), start_static_loading::<S>);
+        app.add_systems(OnEnter(S::static_loading_state()), create_camera);
  
-        app.add_state::<GameStates>().add_loading_state(
-            LoadingState::new(GameStates::AssetLoading)
-                .load_collection::<GameAssets>()
+        app.add_state::<S>().add_loading_state(
+            LoadingState::new(S::asset_loading_state())
+                .load_collection::<A>()
                 .with_dynamic_assets_file::<StandardDynamicAssetCollection>("resources.assets.ron")
-                .continue_to_state(GameStates::Setup),
+                .continue_to_state(S::setup_state()),
         );
 
-        app.add_systems(OnEnter(GameStates::Setup), create_grid_entities);
+        app.add_systems(OnEnter(S::setup_state()), create_grid_entities::<A, S>);
     }
 }
