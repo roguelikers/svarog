@@ -4,7 +4,7 @@ use bevy::{app::Plugin, asset::Handle, core_pipeline::core_2d::Camera2dBundle, e
     utils::hashbrown::HashMap, window::{PrimaryWindow, Window}};
 use bevy_asset_loader::{asset_collection::AssetCollection, loading_state::{config::ConfigureLoadingState, LoadingState, LoadingStateAppExt}, standard_dynamic_asset::StandardDynamicAssetCollection};
 use csv::Trim;
-use std::{collections::HashSet, fmt::Debug, marker::PhantomData};
+use std::{borrow::Cow, collections::HashSet, fmt::Debug, hash::{DefaultHasher, Hash, Hasher}, marker::PhantomData};
 
 //use super::{GameAssets, GameStates};
 
@@ -113,7 +113,6 @@ impl Fonts {
             }
         }
 
-        println!("REGISTERED FONT {}: {:?}", path, font);
         self.fonts.insert(path.to_string(), font);
     }
 }
@@ -224,12 +223,50 @@ impl Grid {
 #[derive(Resource, Default, Debug)]
 pub struct Grids {
     pub grids: HashMap<String, Grid>,
+    pub inputs: HashMap<u64, Vec<Word>>,
+}
+
+#[derive(Default, Debug, Resource)]
+pub struct Strings(pub HashMap<u64, String>);
+
+impl Strings {
+    fn get(&self, s: &str) -> u64 {
+        let mut hasher = DefaultHasher::new();
+        s.hash(&mut hasher);
+        hasher.finish()
+    }
+
+    pub fn pass(&mut self, s: &str) -> u64 {
+        let id = self.get(s);
+
+        if !self.0.contains_key(&id) {
+            self.0.insert(id, s.to_owned());
+        }
+
+        return id;
+    }
+
+    pub fn out(&mut self, id: u64) -> Option<&String> {
+        self.0.get(&id)
+    }
 }
 
 #[derive(Component)]
 pub struct SetGridValue {
-    pub tileset: String,
-    pub value: String,
+    pub tileset: u64,
+    pub value: u64,
+}
+
+#[derive(Debug)]
+enum Token {
+    Token(Vec<char>),
+    Var(Vec<char>),
+}
+
+#[derive(Debug, Clone, Copy)]
+enum Word {
+    Text(u64),
+    Var(u64),
 }
 
 impl Grids {
@@ -245,57 +282,143 @@ impl Grids {
         }
     }
 
-    pub fn set(&self, commands: &mut Commands, grid: &str, x: i32, y: i32, value: &str) {
+    pub fn set(&mut self, commands: &mut Commands, strings: &mut Strings, grid: &str, x: i32, y: i32, value: &str) {
         if let Some(grid) = self.grids.get(grid) {
             if let Some(tile_entity) = grid.get(x - 1, grid.height - 1 - y) {
-                commands.entity(*tile_entity).insert(SetGridValue { tileset: grid.tileset.clone(), value: value.to_owned() });
+                commands.entity(*tile_entity).insert(SetGridValue { tileset: strings.pass(&grid.tileset), value: strings.pass(value) });
             } else {
                 println!("No grid at x, y: {} {}", x, grid.height - 1 - y);
-                println!("{:?}", grid.entities.len());
             }
         } else {
             println!("No grid {}", grid);
         }
     }
 
-    pub fn print(&self, commands: &mut Commands, grid: &str, x: i32, y: i32, value: &str) {
-        for (index, ch) in value.chars().enumerate() {
-            self.set(commands, grid, x + index as i32, y, &ch.to_string());
+    pub fn print(&mut self, commands: &mut Commands, strings: &mut Strings, grid: &str, x: i32, y: i32, value: &str) {
+        let input = strings.pass(value);
+        let results = self.inputs.get(&input).cloned().unwrap_or(
+        {
+            let (token, mut results) = value.chars().fold(
+                (Token::Token(vec![]), vec![]), 
+            |(token, mut parts), next_char| {
+                match (token, next_char) {
+                    (Token::Token(token), '/') if token.len() == 0 => {
+                        (Token::Var(vec![]), parts)
+                    },
+                    (Token::Token(token), '/') => {
+                        parts.extend(vec![ Word::Text(strings.pass(&token.iter().collect::<String>())) ]);
+                        (Token::Var(vec![]), parts)
+                    },
+                    (Token::Token(mut token), next_char) => {
+                        token.extend(vec![ next_char ]);
+                        (Token::Token(token), parts)
+                    },
+                    (Token::Var(token), '/') if token.len() == 0 => {
+                        parts.extend(vec![ Word::Text(strings.pass("/")) ]);
+                        (Token::Token(vec![]), parts)
+                    },
+                    (Token::Var(token), '/') => {
+                        parts.extend(vec![ Word::Var(strings.pass(&token.iter().collect::<String>())) ]);
+                        (Token::Token(vec![]), parts)
+                    },
+                    (Token::Var(mut token), next_char) => {
+                        token.extend(vec![ next_char ]);
+                        (Token::Var(token), parts)
+                    },
+                }
+            });
+
+            match token {
+                Token::Token(token) | Token::Var(token) if token.is_empty() => {},
+                Token::Token(token) => { results.extend(vec![ Word::Text(strings.pass(&token.iter().collect::<String>())) ]); },
+                Token::Var(token) => { results.extend(vec![ Word::Var(strings.pass(&token.iter().collect::<String>())) ]); },
+            }
+
+            results
+        });
+
+        let mut index = 0;
+        for ch in results.iter() {
+            match ch {
+                Word::Text(text) => {
+                    let str = strings.out(*text).unwrap().clone();
+                    for c in 0..str.len() {
+                        self.set(commands, strings, grid, x + index as i32, y, &str[c..c+1]);
+                        index += 1;
+                    }
+                },
+
+                Word::Var(text) => {
+                    let text = strings.out(*text).unwrap().clone(); 
+                    self.set(commands, strings, grid, x + index as i32, y, &text);
+                    index += 1;
+                }
+            }
         }
     }
 
-    pub fn rect(&self, commands: &mut Commands, grid: &str, x: i32, y: i32, w: i32, h: i32, value: &str) {
-        for dx in x..(x + w) {
-            for dy in y..(y + h) {
-                self.set(commands, grid, dx, dy, value);
+    pub fn rect(&mut self, commands: &mut Commands, strings: &mut Strings, grid: &str, x: i32, y: i32, w: i32, h: i32, value: &str) {
+        for dx in x..=(x + w) {
+            for dy in y..=(y + h) {
+                self.set(commands, strings, grid, dx, dy, value);
             }
         }
+    }
+
+    //                        0   1   2   3  4  5  6  7  8
+    /// Slices go like this: TL, TR, BL, BR, T, B, L, R, M
+    pub fn boxed(&mut self, commands: &mut Commands, strings: &mut Strings, grid: &str, x: i32, y: i32, w: i32, h: i32, slices: &[&str; 9]) {
+        self.rect(commands, strings, grid, x, y, w, h, slices[8]);
+
+        for i in x..=x+w {
+            self.set(commands, strings, grid, i, y, slices[4]);
+            self.set(commands, strings, grid, i, y+h, slices[5]);
+        }
+
+        for j in y..=y+h {
+            self.set(commands, strings, grid, x, j, slices[6]);
+            self.set(commands, strings, grid, x+w, j, slices[7]);
+        }
+
+        self.set(commands, strings, grid, x, y, slices[0]);
+        self.set(commands, strings, grid, x+w, y, slices[1]);
+        self.set(commands, strings, grid, x, y+h, slices[2]);
+        self.set(commands, strings, grid, x+w, y+h, slices[3]);
     }
 }
 
 pub struct GridEditor<'a, 'w, 's> {
-    pub grids: &'a Grids,
+    pub grids: &'a mut Grids,
+    pub strings: &'a mut Strings,
     pub commands: &'a mut Commands<'w, 's>,
 }
 
 impl<'a, 'w, 's> GridEditor<'a, 'w, 's> {
-    pub fn new(commands: &'a mut Commands<'w, 's>, grids: &'a Grids) -> Self {
+    pub fn new(commands: &'a mut Commands<'w, 's>, grids: &'a mut Grids, strings: &'a mut Strings) -> Self {
         Self {
             commands, 
             grids,
+            strings,
         }
     }
 
     pub fn set(&mut self, grid: &str, x: i32, y: i32, value: &str) {
-        self.grids.set(self.commands, grid, x, y, value);
+        if value.len() > 0 {
+            self.grids.set(self.commands, self.strings, grid, x, y, value);
+        }
     }
 
     pub fn print(&mut self, grid: &str, x: i32, y: i32, value: &str) {
-        self.grids.print(self.commands, grid, x, y, value);
+        self.grids.print(self.commands, self.strings, grid, x, y, value);
     }
 
     pub fn rect(&mut self, grid: &str, x: i32, y: i32, w: i32, h: i32, value: &str) {
-        self.grids.rect(self.commands, grid, x, y, w, h, value);
+        self.grids.rect(self.commands, self.strings, grid, x, y, w - 1, h - 1, value);
+    }
+
+    /// Slices go like this: TL, TR, BL, BR, T, B, L, R, M
+    pub fn boxed(&mut self, grid: &str, x: i32, y: i32, w: i32, h: i32, slices: &[&str; 9]) {
+        self.grids.boxed(self.commands, self.strings, grid, x, y, w - 1, h - 1, slices);
     }
 }
 
@@ -408,8 +531,8 @@ pub fn create_grid_entities<GameAssets: SvarogTextureAssets, GameStates: SvarogS
                                 sprite: TextureAtlasSprite { index: (i as usize + j as usize) % 90, ..Default::default() },
                                 texture_atlas: assets.get(&tileset.name).unwrap_or_else(|| panic!("NO FONT: {}", tileset.name)),
                                 transform: Transform::from_translation(Vec3::new(
-                                    (i * tileset.width) as f32, 
-                                    (j * tileset.height) as f32, 
+                                    ((grid.x + i) * tileset.width) as f32, 
+                                    ((grid.y + j) * tileset.height) as f32, 
                                     grid.depth as f32)),
                                 visibility: Visibility::Visible,
                                 ..Default::default()
@@ -441,7 +564,7 @@ impl<A: SvarogTextureAssets, S: SvarogStates> Plugin for SvarogLoadingPlugin<A, 
         app.insert_resource(tilesets);
         app.insert_resource(fonts);
         app.insert_resource(grids);
-
+        app.insert_resource(Strings::default());
         app.add_systems(OnEnter(S::static_loading_state()), start_static_loading::<S>);
         app.add_systems(OnEnter(S::static_loading_state()), create_camera);
  

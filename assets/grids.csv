@@ -1,14 +1,14 @@
-   name     |    width    |    height   |   depth   |  x  |  y  | kind       | tileset        | align
-#-----------+-------------+-------------+-----------+-----+-----+------------+----------------+---------------------
-#  tiles    |         200 |         200 |         0 | 100 | 100 | glyph      | kenney-colour  | None
-#-----------+-------------+-------------+-----------+-----+-----+------------+----------------+---------------------
-   uiTL     |          15 |          10 |         1 |   1 |   1 | glyph      | sourcecodepro  | TopLeft
-#  uiTR     |          10 |          10 |         1 |   1 |   1 | glyph      | sourcecodepro  | TopRight
-#  uiBL     |          10 |          10 |         1 |   1 |   1 | glyph      | sourcecodepro  | BottomLeft
-#  uiBR     |          10 |          10 |         1 |   1 |   1 | glyph      | sourcecodepro  | BottomRight   
-#  uiT      |          10 |          10 |         1 |   0 |   1 | glyph      | sourcecodepro  | Top
-#  uiB      |          10 |          10 |         1 |   0 |   1 | glyph      | sourcecodepro  | Bottom
-#  uiL      |          10 |          10 |         1 |   1 |   0 | glyph      | sourcecodepro  | Left
-#  uiR      |          10 |          10 |         1 |   1 |   0 | glyph      | sourcecodepro  | Right      
-#  uiC      |          10 |          10 |         1 |   0 |   0 | glyph      | sourcecodepro  | Center         
-#-----------+-------------+-------------+-----------+-----+-----+------------+----------------+---------------------
+   name     |    width    |    height   |   depth   |   x  |   y  | kind       | tileset        | align
+#-----------+-------------+-------------+-----------+------+------+------------+----------------+---------------------
+   tiles    |         200 |         200 |         0 | -100 | -100 | glyph      | kenney-colour  | None
+#-----------+-------------+-------------+-----------+------+------+------------+----------------+---------------------
+   uiTL     |          15 |          10 |         1 |    1 |    1 | glyph      | sourcecodepro  | TopLeft
+#  uiTR     |          10 |          10 |         1 |    1 |    1 | glyph      | sourcecodepro  | TopRight
+#  uiBL     |          10 |          10 |         1 |    1 |    1 | glyph      | sourcecodepro  | BottomLeft
+#  uiBR     |          10 |          10 |         1 |    1 |    1 | glyph      | sourcecodepro  | BottomRight   
+#  uiT      |          10 |          10 |         1 |    0 |    1 | glyph      | sourcecodepro  | Top
+#  uiB      |          10 |          10 |         1 |    0 |    1 | glyph      | sourcecodepro  | Bottom
+#  uiL      |          10 |          10 |         1 |    1 |    0 | glyph      | sourcecodepro  | Left
+#  uiR      |          10 |          10 |         1 |    1 |    0 | glyph      | sourcecodepro  | Right      
+#  uiC      |          10 |          10 |         1 |    0 |    0 | glyph      | sourcecodepro  | Center         
+#-----------+-------------+-------------+-----------+------+------+------------+----------------+---------------------
