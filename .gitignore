@@ -1,1 +1,4 @@
 /target
+generated_code.rs.bak
+.vscode/
+Cargo.lock

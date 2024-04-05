@@ -1,8 +1,8 @@
 use std::marker::PhantomData;
 
-use bevy::{app::{App, Update}, ecs::schedule::{common_conditions::in_state, IntoSystemConfigs}};
-
-use self::{loading::{Fonts, Grids, SvarogLoadingPlugin, SvarogStates, SvarogTextureAssets, Tilesets}, update::{grid_update_values, SvarogGridPlugin}, windows::SvarogWindowPlugin};
+use bevy::app::App;
+use self::{loading::{Fonts, Grids, SvarogLoadingPlugin, SvarogStates, SvarogTextureAssets, Tilesets}, 
+    update::SvarogGridPlugin, windows::SvarogWindowPlugin};
 
 pub mod windows;
 pub mod loading;

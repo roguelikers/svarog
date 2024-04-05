@@ -1,6 +1,7 @@
 use std::marker::PhantomData;
 
-use bevy::{app::{Plugin, Update}, ecs::{entity::Entity, schedule::{common_conditions::in_state, IntoSystemConfigs}, system::{Commands, Local, Query, Res, ResMut}}, input::{keyboard::KeyCode, Input}, sprite::TextureAtlasSprite};
+use bevy::{app::{Plugin, Update}, ecs::{entity::Entity, schedule::{common_conditions::in_state, IntoSystemConfigs}, 
+    system::{Commands, Local, Query, Res, ResMut}}, input::{keyboard::KeyCode, Input}, sprite::TextureAtlasSprite};
 use bevy_rand::{plugin::EntropyPlugin, prelude::WyRand, resource::GlobalEntropy};
 use rand_core::RngCore;
 
@@ -23,7 +24,7 @@ pub fn change_random_updates(input: Res<Input<KeyCode>>, mut commands: Commands,
         *counter += 1;
         grid.boxed("uiTL", 0, 0, 15, 10, &[ "topleft", "topright", "bottomleft", "bottomright", "top", "bottom", "left", "right", " " ]);
         grid.print("uiTL", 3, 0, &format!(" COUNT: {} ", *counter));
-        grid.print("uiTL", 2, 2, "C:>/block/ed");
+        grid.print("uiTL", 2, 2, "C:>/block//x/");
         grid.set("uiTL", 6, 2, if *counter % 2 == 0 { "block" } else { "" });
     }
 }
@@ -32,7 +33,6 @@ pub fn grid_update_values(
     mut commands: Commands,
     tilesets: Res<Tilesets>,
     fonts: Res<Fonts>,
-    mut grids: ResMut<Grids>,
     mut strings: ResMut<Strings>,
     mut changed_sprite_query: Query<(Entity, &mut TextureAtlasSprite, &SetGridValue)>,
 ) {

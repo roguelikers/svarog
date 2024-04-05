@@ -7,23 +7,27 @@ use bevy_asset_loader::asset_collection::AssetCollection;
 
 use engine::loading::{Fonts, Grids, SvarogStates, SvarogTextureAssets, Tilesets};
 use engine::Svarog;
+use svarog_macros::{SvarogStates, svarog_states};
 
-
-#[derive(Clone, Eq, PartialEq, Debug, Hash, Default, States)]
+#[svarog_states]
 pub enum GameStates {
     #[default]
+    #[static_loading]
     StaticLoading,
+    #[asset_loading]
     AssetLoading,
+    #[setup]
     Setup,
+    #[done_loading]
     Game,
 }
 
-impl SvarogStates for GameStates {
-    fn static_loading_state() -> Self { Self::StaticLoading }
-    fn asset_loading_state() -> Self { Self::AssetLoading }
-    fn setup_state() -> Self { Self::Setup }
-    fn done_loading_state() -> Self { Self::Game }
-}
+// impl SvarogStates for GameStates {
+//     fn static_loading_state() -> Self { Self::StaticLoading }
+//     fn asset_loading_state() -> Self { Self::AssetLoading }
+//     fn setup_state() -> Self { Self::Setup }
+//     fn done_loading_state() -> Self { Self::Game }
+// }
 
 #[derive(AssetCollection, Resource, Default)]
 pub struct GameAssets {

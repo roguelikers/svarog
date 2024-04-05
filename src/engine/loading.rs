@@ -4,7 +4,7 @@ use bevy::{app::Plugin, asset::Handle, core_pipeline::core_2d::Camera2dBundle, e
     utils::hashbrown::HashMap, window::{PrimaryWindow, Window}};
 use bevy_asset_loader::{asset_collection::AssetCollection, loading_state::{config::ConfigureLoadingState, LoadingState, LoadingStateAppExt}, standard_dynamic_asset::StandardDynamicAssetCollection};
 use csv::Trim;
-use std::{borrow::Cow, collections::HashSet, fmt::Debug, hash::{DefaultHasher, Hash, Hasher}, marker::PhantomData};
+use std::{collections::HashSet, fmt::Debug, hash::{DefaultHasher, Hash, Hasher}, marker::PhantomData};
 
 //use super::{GameAssets, GameStates};
 
@@ -47,7 +47,7 @@ pub struct Fonts {
 }
 
 impl Fonts {
-    pub fn add(&mut self, name: &str, path: &str) {
+    pub fn add(&mut self, path: &str) {
         let Ok(mut csv) = csv::ReaderBuilder::new()
             .delimiter(b'|')
             .comment(Some(b'#'))
@@ -264,7 +264,7 @@ enum Token {
 }
 
 #[derive(Debug, Clone, Copy)]
-enum Word {
+pub enum Word {
     Text(u64),
     Var(u64),
 }
@@ -447,7 +447,7 @@ impl Tilesets {
             .from_path(format!("assets/{}", path).as_str()) else { return; };
 
         for record in csv.deserialize::<Tileset>().flatten() {
-            fonts.add(&record.name, &record.font);
+            fonts.add(&record.font);
             self.tilesets.insert(record.name.clone(), record);
         }
     }
@@ -532,7 +532,7 @@ pub fn create_grid_entities<GameAssets: SvarogTextureAssets, GameStates: SvarogS
                                 texture_atlas: assets.get(&tileset.name).unwrap_or_else(|| panic!("NO FONT: {}", tileset.name)),
                                 transform: Transform::from_translation(Vec3::new(
                                     ((grid.x + i) * tileset.width) as f32, 
-                                    ((grid.y + j) * tileset.height) as f32, 
+                                    ((if grid.align == GridAlign::None { grid.y } else { 0 } + j) * tileset.height) as f32, 
                                     grid.depth as f32)),
                                 visibility: Visibility::Visible,
                                 ..Default::default()
