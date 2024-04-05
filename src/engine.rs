@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 
 use bevy::app::App;
-use self::{loading::{Fonts, Grids, SvarogLoadingPlugin, SvarogStates, SvarogTextureAssets, Tilesets}, 
+use self::{loading::{Fonts, Grids, SvarogLoadingPlugin, SvarogStates, SvarogTextureAtlases, Tilesets}, 
     update::SvarogGridPlugin, windows::SvarogWindowPlugin};
 
 pub mod windows;
@@ -10,9 +10,9 @@ pub mod tables;
 pub mod rex;
 pub mod update;
 
-pub struct Svarog<A: SvarogTextureAssets, S: SvarogStates>(pub(crate) App, PhantomData<(A, S)>);
+pub struct Svarog<A: SvarogTextureAtlases, S: SvarogStates>(pub(crate) App, PhantomData<(A, S)>);
 
-impl<A: SvarogTextureAssets, S: SvarogStates> Default for Svarog<A, S> {
+impl<A: SvarogTextureAtlases, S: SvarogStates> Default for Svarog<A, S> {
     fn default() -> Self {
         Self({
             let mut app = App::default();
@@ -23,7 +23,7 @@ impl<A: SvarogTextureAssets, S: SvarogStates> Default for Svarog<A, S> {
     }
 }
 
-impl<A: SvarogTextureAssets, S: SvarogStates> Svarog<A, S> {
+impl<A: SvarogTextureAtlases, S: SvarogStates> Svarog<A, S> {
     pub fn with_loader<F: Fn(&mut Tilesets, &mut Fonts, &mut Grids) + 'static + Sync + Send>(mut self, f: F) -> Self {
         self.0.add_plugins(SvarogLoadingPlugin::<A, S>::default().with_loader(f));
         self

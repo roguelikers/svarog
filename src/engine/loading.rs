@@ -15,7 +15,7 @@ pub trait SvarogStates : States {
     fn done_loading_state() -> Self;
 }
 
-pub trait SvarogTextureAssets : AssetCollection + Default {
+pub trait SvarogTextureAtlases : AssetCollection + Default {
     fn get(&self, name: &str) -> Option<Handle<TextureAtlas>>;
 }
 
@@ -489,7 +489,7 @@ pub fn create_camera(mut commands: Commands) {
         CameraTag));
 }
 
-pub fn create_grid_entities<GameAssets: SvarogTextureAssets, GameStates: SvarogStates>(
+pub fn create_grid_entities<GameAssets: SvarogTextureAtlases, GameStates: SvarogStates>(
     mut commands: Commands, 
     mut grids: ResMut<Grids>,
     assets: Res<GameAssets>, 
@@ -554,7 +554,7 @@ pub fn create_grid_entities<GameAssets: SvarogTextureAssets, GameStates: SvarogS
     next.set(GameStates::done_loading_state());
 }
 
-impl<A: SvarogTextureAssets, S: SvarogStates> Plugin for SvarogLoadingPlugin<A, S> {
+impl<A: SvarogTextureAtlases, S: SvarogStates> Plugin for SvarogLoadingPlugin<A, S> {
     fn build(&self, app: &mut bevy::prelude::App) {
         let mut tilesets = Tilesets::default();
         let mut fonts = Fonts::default();
