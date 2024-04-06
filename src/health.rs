@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use bevy::ecs::component::Component;
-use super::{value::Value, Amount, Index, React, Time};
+use crate::gameplay::{value::Value, Amount, Index, react::React, Time};
 use itertools::Itertools;
 use std::fmt::Debug;
 
@@ -372,7 +372,7 @@ impl React<HealthAction, Vec<HealthActionResponse>> for Health {
 
 #[cfg(test)]
 mod health_testing {
-    use crate::gameplay::{health::{HealthActionResponse, HitDieStatus}, React};
+    use crate::{gameplay::react::React, health::{HealthActionResponse, HitDieStatus}};
 
     use super::Health;
 
