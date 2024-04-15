@@ -1,0 +1,38 @@
+  name         |   x   |   y   | attributes
+#=================================================
+# 1 MOSTLY USELESS
+#--------------+-------+-------+------------------
+  empty        |   17   |   1  | empty
+#--------------+-------+-------+------------------
+# 4 WEAPON & ITEMS
+#--------------+-------+-------+------------------
+# name         |   x   |   y   | attributes
+#--------------+-------+-------+------------------
+# 9 MAGIC & EFFECTS
+#--------------+-------+-------+------------------
+# name         |   x   |   y   | attributes
+#--------------+-------+-------+------------------
+# 12 ENVIRONMENT & PROPS
+#--------------+-------+-------+------------------
+# name         |   x   |   y   | attributes
+#--------------+-------+-------+------------------
+  full_wall    |   8   |   13  | wall, brick, full
+  wall_brick   |   1   |   13  | wall, brick
+  broken_tile  |  14   |   14  | tiles, broken
+  cracked_tile |  10   |   16  | tiles, cracked
+  door         |   9   |   17  | door
+#--------------+-------+-------+------------------
+# 26 HEROES & MONSTERS
+#--------------+-------+-------+------------------
+# name         |   x   |   y   | attributes
+#--------------+-------+-------+------------------
+  hero1        |   1   |   25  | hero, knight, short_sword, large_shield
+  hero2        |   2   |   25  | hero, knight, short_sword, round_shield
+  hero3        |   3   |   25  | hero, knight, long_sword
+  hero4        |   4   |   25  | hero, knight, axe, large_shield
+  hero5        |   5   |   25  | hero, monk, staff
+  hero6        |   6   |   25  | hero, monk, fists
+  hero7        |   7   |   25  | hero, monk, sabre
+  hero8        |   8   |   25  | hero, monk, dual_sabres  
+# 37 INTERFACE & EXTRAS
+#--------------+-------+-------+------------------

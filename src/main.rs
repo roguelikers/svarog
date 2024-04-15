@@ -1,7 +1,6 @@
 pub mod health;
 pub mod gameplay;
 
-use bevy::app::Startup;
 use bevy::ecs::component::Component;
 use bevy::ecs::schedule::OnEnter;
 use bevy::ecs::{schedule::States, system::Resource};
@@ -42,12 +41,12 @@ pub enum GameStates {
 
 #[svarog_texture_atlases]
 pub struct TextureAtlases {
-    #[asset(key = "kenney-colour")]
-    pub kenney_colour: Handle<TextureAtlas>,
-    #[asset(key = "kenney-mono")]
-    pub kenney_mono: Handle<TextureAtlas>,
     #[asset(key = "sourcecodepro")]
     pub sourcecodepro: Handle<TextureAtlas>,
+    #[asset(key = "oryx")]
+    pub oryx: Handle<TextureAtlas>,
+    #[asset(key = "oryx-trans")]
+    pub oryx_trans: Handle<TextureAtlas>,
     #[asset(key = "dragon")]
     pub dragon: Handle<Image>,
 }
@@ -60,25 +59,27 @@ pub fn load_static_data(tilesets: &mut Tilesets, fonts: &mut Fonts, grids: &mut 
     grids.add("grids.csv");
 }
 
-pub fn randomize_background(mut commands: Commands, mut grids: ResMut<Grids>, mut rng: ResMut<Random>, seed: Res<Seed>, mut counter: Local<i32>) {
+pub fn draw_ground(mut commands: Commands, mut grids: ResMut<Grids>) {
     let mut grid = GridEditor::new(&mut commands, &mut grids);
-    let tiles = [ "dirt1", "dirt2", "dirt3", "grass1", "grass2", "grass3", "grass4" ];
 
-    if *counter != seed.0 {
-        for i in 85..115 {
-            for j in 85..115 {
-                let p = vec2(i as f32, j as f32);
-                if rng.coin() {
-                    let h = (simplex_noise_2d_seeded(p, seed.0 as f32) * tiles.len() as f32).clamp(0.0, tiles.len() as f32);
-                    grid.set("tiles", i, j, tiles[h as usize]);
-                } else {
-                    grid.set("tiles", i, j, "empty");
-                }
-            }
+    for i in 0..200 {
+        for j in 0..200 {
+            grid.set("ground", i, j, "empty");
         }
-
-        *counter = seed.0;
     }
+
+    grid.custom_frame("ground", 100, 100, 10, 5, &[ 
+        "full_wall", "full_wall", "wall_brick", "wall_brick",
+        "wall_brick", "wall_brick", "full_wall", "full_wall",
+        "empty"
+    ]);
+
+    grid.set("ground", 102, 104, "door");
+    grid.set("ground", 100, 102, "door");
+
+    grid.set("tiles", 101, 101, "hero1");
+    grid.set("tiles", 102, 101, "hero2");
+    grid.set("tiles", 103, 101, "hero3");
 }
 
 pub fn change_random_updates(input: Res<Input<KeyCode>>, mut commands: Commands, mut grids: ResMut<Grids>, mut seed: ResMut<Seed>, mut first: Local<bool>) {
@@ -87,9 +88,9 @@ pub fn change_random_updates(input: Res<Input<KeyCode>>, mut commands: Commands,
     if input.just_pressed(KeyCode::Space) || !*first {
         *first = true;
         seed.0 += 1;
-        grid.frame("uiTL", 0, 0, 50, 5);
-        grid.print("uiTL", 3, 0, &format!(" COUNT: {} ", seed.0));
-        grid.print("uiTL", 2, 2, "Press space to regenerate!");
+        grid.frame("ui_topleft", 0, 0, 50, 5);
+        grid.print("ui_topleft", 3, 0, &format!(" COUNT: {} ", seed.0));
+        grid.print("ui_topleft", 2, 2, "Press space to regenerate!");
     }
 }
 
@@ -111,6 +112,7 @@ pub fn main() {
                 }
             }
 
+            // 19x26
             commands.spawn((SpriteBundle {
                     texture: textures.dragon.clone_weak(),
                     sprite: Sprite {
@@ -118,15 +120,14 @@ pub fn main() {
                         ..Default::default()
                     },
                     visibility: Visibility::Hidden,
-                    transform: Transform::from_xyz(0., 0., -0.5).with_scale(Vec3::new(2.0, 2.0, 2.0)),
+                    transform: Transform::from_xyz(0., 0., -0.5).with_scale(Vec3::new(1.0, 1.0, 1.0)),
                     ..Default::default()
                 }, PictureOverlay));
         
         })
         .add_systems(Update, 
-            (
-                randomize_background, 
-                change_random_updates
+            ( 
+                draw_ground, change_random_updates
             ).chain().run_if(in_state(GameStates::done_loading_state())))
         .run();
 }

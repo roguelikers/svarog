@@ -1,18 +1,18 @@
 ({
-    "kenney-colour": TextureAtlas(
-        path: "kenney-colour/colored_packed.png",
-        tile_size_x: 16., tile_size_y: 16.,
-        columns: 49, rows: 22,
-    ),
-    "kenney-mono": TextureAtlas(
-        path: "kenney-mono/monochrome_packed.png",
-        tile_size_x: 16., tile_size_y: 16.,
-        columns: 49, rows: 22,
-    ),
     "sourcecodepro": TextureAtlas(
         path: "sourcecodepro/regular.png",
         tile_size_x: 11., tile_size_y: 21.,
         columns: 26, rows: 4,
+    ),
+    "oryx": TextureAtlas(
+        path: "oryx/oryx_roguelike_16x24.png",
+        tile_size_x: 16., tile_size_y: 24.,
+        columns: 19, rows: 49,
+    ),
+    "oryx-trans": TextureAtlas(
+        path: "oryx/oryx_roguelike_16x24_trans.png",
+        tile_size_x: 16., tile_size_y: 24.,
+        columns: 19, rows: 49,
     ),
     "dragon": Image(path: "dragon.png"),
 })
